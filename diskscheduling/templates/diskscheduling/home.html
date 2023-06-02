@@ -1,164 +1,274 @@
 {% load static %} {% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Disk Scheduling</title>
-    {% tailwind_css %}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body class="bg-body-bg">
-    <div class="main p-4 sm:p-8">
-        <h1 class="text-[#66FCF1] font-bold text-3xl sm:text-5xl text-center">Disk Scheduling Algorithm</h1>
-        <form action="post">
-            <div class="flex flex-col items-center">
-                <div class="relative z-0 w-full max-w-xs m-5">
-                    <div class="relative z-0 m-5">
-                        <input
-                            oninput="generateInputFields()"
-                            id="jobCountInput"
-                            type="number"
-                            id="floating_standard"
-                            class="block py-2.5 px-0 w-full text-white text-xl font-bold bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                            placeholder=" "
-                        />
-                        <label
-                            for="floating_standard"
-                            class="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-                        >
-                            Input number of jobs.
-                        </label>
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Disk Scheduling</title>
+        <link rel="stylesheet" href="/static/assets/css/style.css">
+        <link rel="stylesheet" href="/static/assets/css/modal.css">
+        <link rel="stylesheet" href="/static/assets/css/answer.css">
+        {% tailwind_css %}
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    </head>
+    <body class="body">
+        <div class="main">
+            <h1 class="title">DISK SCHEDULING ALGORITHM</h1>
+            <form method="post" id="algorithmForm" action="">
+                <!-- job_count='job_count' previously_served='previously_served' starting_position='starting_position' starting_track='starting_track' ending_track='ending_track' -->
+                {% csrf_token %}
+                <div class="flex flex-col items-center">
+                    <div class="relative z-0 w-full max-w-xs m-5">
+                        <div class="job-input z-0 m-5">
+                            <input
+                                oninput="generateInputFields()"
+                                id="jobCountInput"
+                                type="number"
+                                id="floating_standard"
+                                name="job_count"
+                                class="input"
+                                placeholder="Enter number of jobs"
+                            />
+                        </div>
                     </div>
-                </div>
 
-                <div class="flex flex-col w-full mt-5">
-                    <div class="m-5 rounded-lg text-white text-center font-bold text-lg overflow-y-auto border-2 border-[#45A29E]">
-                        <h1 class="m-2">Arrival Time</h1>
-                        <div class="m-5" id="inputFieldsContainer"></div>
-                    </div>
-                </div>
-
-                <div class="w-full mt-5">
-                    <div class="m-5 rounded-lg text-white font-bold text-lg border-2 border-[#45A29E]">
-                        <h1 class="m-2 text-center">Requirements</h1>
-                        <div class="p-3">
-                            <div class="relative z-0 m-3">
-                                <input
-                                    type="text"
-                                    id="floating_standard"
-                                    class="block py-2.5 px-0 w-full text-white text-xl font-bold bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                                    placeholder=" "
-                                />
-                                <label
-                                    for="floating_standard"
-                                    class="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-                                >
-                                    Previously Served
-                                </label>
+                    <div class="flex flex-row w-full">
+                        <div class="flex flex-col w-full lg:justify-center mr-8 lg:mb-0 mb-2">
+                            <div class="rounded-lg text-white text-center font-bold text-lg overflow-y-auto h-full ">
+                                <!--<h1 class="m-2 text-[#212121]">Arrival Time</h1>-->
+                                <div class="m-5 bg-[#e8e8e8]" id="inputFieldsContainer">
+                                    {% for key, value in input_values.items %} {% if key|slice:'0:4' == 'job_' %}
+                                    <input
+                                        type="number"
+                                        name="{{ key }}"
+                                        class="arrival bg-[#e8e8e8]"
+                                        placeholder="{{ value }}"
+                                        value="{{ input_values.key }}"
+                                        required
+                                    />
+                                    {% endif %} {% endfor %}
+                                </div>
                             </div>
+                        </div>
 
-                            <div class="relative z-0 m-3">
-                                <input
-                                    type="text"
-                                    id="floating_standard"
-                                    class="block py-2.5 px-0 w-full text-white text-xl font-bold bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                                    placeholder=" "
-                                />
-                                <label
-                                    for="floating_standard"
-                                    class="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-                                >
-                                    Starting Position
-                                </label>
-                            </div>
+                        <div class="flex flex-col w-full lg:justify-center">
+                            <div class="rounded-lg text-white font-bold text-lg h-full">
+                                <h1 class="m-2 text-center text-[#212121]">Requirements</h1>
+                                
+                                <div class="p-3">
+                                    <div class="relative z-0 m-2">
+                                        <input
+                                            type="number"
+                                            id="floating_standard"
+                                            name="previously_served"
+                                            class="block py-2.5 px-0 w-full  font-bold bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-[#212121]-500 focus:outline-none focus:ring-0 focus:border-[#212121]-600 peer"
+                                            placeholder=" "
+                                            value="{{ input_values.previously_served }}"
+                                            required
+                                        />
+                                        <label
+                                            for="floating_standard"
+                                            class="absolute text-sm ml-2  text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-[#212121]-600 peer-focus:dark:text-[#212121]-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+                                        >
+                                            Previously Served
+                                        </label>
+                                    </div>
 
-                            <div class="relative z-0 m-3">
-                                <input
-                                    type="text"
-                                    id="floating_standard"
-                                    class="block py-2.5 px-0 w-full text-white text-xl font-bold bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                                    placeholder=" "
-                                />
-                                <label
-                                    for="floating_standard"
-                                    class="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-                                >
-                                    Starting Track
-                                </label>
-                            </div>
+                                    <div class="relative z-0 m-2">
+                                        <input
+                                            type="number"
+                                            id="floating_standard"
+                                            name="starting_position"
+                                            class="block py-2.5 px-0 w-full text-white text-xl font-bold bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-[#212121]-500 focus:outline-none focus:ring-0 focus:border-[#212121]-600 peer"
+                                            placeholder=" "
+                                            value="{{ input_values.starting_position }}"
+                                            required
+                                        />
 
-                            <div class="relative z-0 m-3">
-                                <input
-                                    type="text"
-                                    id="floating_standard"
-                                    class="block py-2.5 px-0 w-full text-white text-xl font-bold bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                                    placeholder=" "
-                                />
-                                <label
-                                    for="floating_standard"
-                                    class="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-                                >
-                                    Ending Track
-                                </label>
+                                        <label
+                                            for="floating_standard"
+                                            class="absolute text-sm ml-2 text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-#212121-600 peer-focus:dark:text-#212121-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+                                        >
+                                            Starting Position
+                                        </label>
+                                    </div>
+
+                                    <div class="relative z-0 m-2">
+                                        <input
+                                            type="number"
+                                            id="starting_track"
+                                            name="starting_track"
+                                            class="block py-2.5 px-0 w-full text-white text-xl font-bold bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-#212121-500 focus:outline-none focus:ring-0 focus:border-#212121-600 peer"
+                                            placeholder=" "
+                                            value="{{ input_values.starting_track }}"
+                                            required
+                                        />
+                                        <label
+                                            for="floating_standard"
+                                            class="absolute text-sm text-gray-500 ml-2 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-#212121-600 peer-focus:dark:text-#212121-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+                                        >
+                                            Starting Track
+                                        </label>
+                                    </div>
+
+                                    <div class="relative z-0 m-2">
+                                        <input
+                                            type="number"
+                                            id="ending_track"
+                                            name="ending_track"
+                                            class="block py-2.5 px-0 w-full text-white text-xl font-bold bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-#212121-500 focus:outline-none focus:ring-0 focus:border-#212121-600 peer"
+                                            placeholder=" "
+                                            value="{{ input_values.ending_track }}"
+                                            required
+                                        />
+                                        <label
+                                            for="floating_standard"
+                                            class="absolute text-sm ml-2 text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-#212121-600 peer-focus:dark:text-#212121-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+                                        >
+                                            Ending Track
+                                        </label>
+                                    </div>
+
+                                    <div class="relative z-0 m-2">
+                                        <input
+                                            type="number"
+                                            id="arm_movement"
+                                            name="arm_movement"
+                                            class="block py-2.5 px-0 w-full text-white text-xl font-bold bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-#212121-500 focus:outline-none focus:ring-0 focus:border-#212121-600 peer"
+                                            placeholder=" "
+                                            value="{{ input_values.arm_movement }}"
+                                            required
+                                        />
+                                        <label
+                                            for="floating_standard"
+                                            class="absolute text-sm ml-2 text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-#212121-600 peer-focus:dark:text-#212121-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+                                        >
+                                            Arm Movement Per Cyclinder
+                                        </label>
+                                    </div>
+
+                        
+                                </div>
+                                
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="flex flex-row justify-between w-full m-5 mr-5">
-                    <div></div>
-                    <button
-                        data-modal-target="#choose-algo"
-                        data-modal-toggle="defaultModal"
-                        type="button"
-                        class="relative inline-flex items-center justify-center p-0.5 mb-2 mr-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800"
-                    >
-                        <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
-                            Choose Algorithm
-                        </span>
-                    </button>
-                    {% include "diskscheduling/algomodal.html" %}
+                    <div class="grid ">
+                        <div class="clear-btn flex justify-end w-full">
+                            <button id="clearButton" type="button" class="clear px-4 py-2 mt-2 ">
+                            Clear All
+                            </button>
+                        </div>
+                        <div class="clear-btn flex justify-center items-center w-full m-10 p-5">
+                            <button
+                                data-modal-target="#choose-algo"
+                                data-modal-toggle="defaultModal"
+                                type="button"
+                                class="choose-btn relative inline-flex items-center justify-center p-0.5 mb-2 mr-2 overflow-hidden text-sm font-medium text-[#212121]"
+                            >
+                                <span class="algo-text relative px-5 py-2.5">
+                                    Choose Algorithm
+                                </span>
+                            </button>
+                            {% include "diskscheduling/algomodal.html" %}
+                        </div>    
+                    </div>                
                 </div>
             </form>
         </div>
+        
+    </body>
 
-        <script>
-            function generateInputFields() {
-                const jobCount = document.getElementById("jobCountInput").value;
-                const container = document.getElementById("inputFieldsContainer");
-                container.innerHTML = "";
-
-                for (let i = 1; i <= jobCount; i++) {
-                    const inputField = document.createElement("input");
-                    inputField.type = "number";
-                    inputField.className =
-                        "block py-2.5 px-0 w-full text-lg text-white bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 mb-3 peer";
-                    inputField.placeholder = `Input job ${i}`;
-                    container.appendChild(inputField);
-                }
+    <script>
+        function generateInputFields() {
+            const jobCount = document.getElementById("jobCountInput").value;
+            const container = document.getElementById("inputFieldsContainer");
+            container.innerHTML = "";
+        
+            for (let i = 1; i <= jobCount; i++) {
+                const inputWrapper = document.createElement("div");
+                inputWrapper.className = "flex items-center mb-3";
+        
+                const label = document.createElement("label");
+                label.textContent = `Job ${i}`;
+                label.htmlFor = `job_${i}`;
+                label.className = "mr-2 text-sm text-[#212121] bg-[#e8e8e8]";
+                inputWrapper.appendChild(label);
+        
+                const inputField = document.createElement("input");
+                inputField.type = "number";
+                inputField.name = `job_${i}`;
+                inputField.className = "rounded-md shadow-md border-none text-[#212121] bg-[#f2f2f3]";
+                inputField.placeholder = `Input job_${i}`;
+                inputField.required = true;
+                inputWrapper.appendChild(inputField);
+        
+                container.appendChild(inputWrapper);
             }
+        }
+        
+        
 
-            //------Modal for Choosing Algorithm-------
-            //Algorithms modal
-            // Get all the modal toggle buttons
-            const modalToggleButtons = document.querySelectorAll("[data-modal-toggle]");
-            // Loop through each button and add a click event listener
-            modalToggleButtons.forEach((button) => {
-                button.addEventListener("click", () => {
-                    // Get the target modal using the data-modal-target attribute
-                    const targetModal = document.querySelector(button.dataset.modalTarget);
-                    // Toggle the hidden class of the target modal
-                    targetModal.classList.toggle("hidden");
-                    // Get the cancel button inside the target modal
-                    const cancelButton = targetModal.querySelector("#cancel-btn");
-                    // Add a click event listener to the cancel button to hide the modal
-                    cancelButton.addEventListener("click", () => {
-                        targetModal.classList.add("hidden");
-                    });
+        //------Modal for Choosing Algorithm-------
+        //Algorithms modal
+        // Get all the modal toggle buttons
+        const modalToggleButtons = document.querySelectorAll("[data-modal-toggle]");
+        // Loop through each button and add a click event listener
+        modalToggleButtons.forEach((button) => {
+            button.addEventListener("click", () => {
+                // Get the target modal using the data-modal-target attribute
+                const targetModal = document.querySelector(button.dataset.modalTarget);
+                // Toggle the hidden class of the target modal
+                targetModal.classList.toggle("hidden");
+                // Get the cancel button inside the target modal
+                const cancelButton = targetModal.querySelector("#cancel-btn");
+                // Add a click event listener to the cancel button to hide the modal
+                cancelButton.addEventListener("click", () => {
+                    targetModal.classList.add("hidden");
                 });
             });
-        </script>
-    </body>
+        });
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var clearButton = document.getElementById('clearButton');
+            clearButton.addEventListener('click', function() {
+              // Clear all input fields
+              var inputFields = document.querySelectorAll('input[type="number"]');
+              inputFields.forEach(function(field) {
+                field.value = '';
+              });
+            });
+          });
+
+
+
+
+          document.addEventListener("DOMContentLoaded", function () {
+            const algorithmForm = document.getElementById("algorithmForm");
+            const algorithmRadios = algorithmForm.elements["algorithm"];
+    
+            algorithmForm.addEventListener("submit", function (event) {
+                event.preventDefault(); // Prevent form submission for demonstration purposes
+    
+                let selectedAlgorithm;
+                for (let i = 0; i < algorithmRadios.length; i++) {
+                    if (algorithmRadios[i].checked) {
+                        selectedAlgorithm = algorithmRadios[i].value;
+                        break;
+                    }
+                }
+    
+                if (selectedAlgorithm) {
+                    algorithmForm.action = `/${selectedAlgorithm.toLowerCase()}/`;
+                    algorithmForm.submit(); // Submit the form
+                } else {
+                    console.log("No algo selected")
+                }
+            });
+        });
+    </script>
 </html>

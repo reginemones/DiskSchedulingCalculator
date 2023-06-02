@@ -1,0 +1,138 @@
+{% extends "diskscheduling/base.html" %} {% load static %} {% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-center text-[#212121] text-4xl font-bold mb-8">FIFO</h1>
+    <div class="chart-container">
+        <div class="card-chart items-center">
+            <canvas id="fcfs"></canvas>
+            <div>
+                <hr class="border-gray-300 my-5" />
+                <h1 class="text-[#212121] text-lg mb-3 text-center">THM = <span class="font-bold">{{thm}}</span></h1>
+                <h1 class="text-[#212121] text-lg text-center">ST = <span class="font-bold">{{st}} ms</span></h1>
+            </div>
+        </div>
+        <div class="card-given">
+            <h2 class="text-[#212121] text-2xl font-semibold mb-5">Summary:</h2>
+            <div class="p-4 flex flex-col sm:flex-row">
+                <div class=" overflow-y-auto sm:overflow-x-auto w-full mr-8">
+                    <table class="table border border-[#212121] text-center text-[#212121]">
+                        <thead>
+                            <tr>
+                                <th class="py-3 px-4 border-b border-[#212121]">Jobs</th>
+                                <th class="py-3 px-4 border-b b border-[#212121]">Arrival Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for key, value in input_values.items %} {% if key|slice:":4" == 'job_' %}
+                            <tr>
+                                <td class="py-3 px-4 border-b b border-[#212121]">{{ key }}</td>
+                                <td class="py-3 px-4 border-b b border-[#212121]">{{ value }}</td>
+                            </tr>
+                            {% endif %} {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-[#212121] flex flex-col justify-between w-full">
+                    {% if input_values %}
+                    <p class="mb-2 text-sm">Previously Served: <br> <span class="font-bold">{{ input_values.previously_served }}</span></p>
+                    <p class="mb-2 text-sm">Starting position: <br> <span class="font-bold">{{ input_values.starting_position }}</span></p>
+                    <p class="mb-2 text-sm">Starting Track: <br> <span class="font-bold">{{ input_values.starting_track }}</span></p>
+                    <p class="mb-2 text-sm">Ending Track: <br> <span class="font-bold">{{ input_values.ending_track }}</span></p>
+                    <p class="mb-2 text-sm">Arm movement: <br> <span class="font-bold">{{ input_values.arm_movement }}</span></p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const xValues = JSON.parse("{{ x_values_json|escapejs }}");
+        const yValues = JSON.parse("{{ y_values_json|escapejs }}");
+        const startingTrack = parseInt("{{ starting_track }}");
+        const endingTrack = parseInt("{{ ending_track }}");
+
+        new Chart("fcfs", {
+            type: "line",
+            data: {
+                labels: xValues,
+                datasets: [
+                    {
+                        fill: false,
+                        label: "Track",
+                        lineTension: 0,
+                        backgroundColor: "black",
+                        borderColor: "#212121",
+                        pointBackgroundColor: "black",
+                        data: yValues,
+                        pointRadius: 3, // Adjust the size of the data points
+                        pointHoverRadius: 5, // Adjust the size of the data points on hover
+                        pointStyle: "circle", // Set the point style to circle
+                        datalabels: {
+                            anchor: "end",
+                            align: "top",
+                            offset: 10,
+                            backgroundColor: "#212121",
+                            borderRadius: 4,
+                            color: "black",
+                            font: {
+                                weight: "bold",
+                            },
+                            formatter: function (value) {
+                                return value; // Display the value of each point
+                            },
+                        },
+                    },
+                ],
+            },
+            options: {
+                plugins: {
+                    datalabels: {
+                        display: true, // Enable datalabels plugin
+                    },
+                },
+                legend: { display: false },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: "#212121",
+                        },
+                        grid: {
+                            color: "#A0A0A0",
+                        },
+                    },
+                    y: {
+                        ticks: {
+                            color: "#212121",
+                        },
+                        grid: {
+                            color: "#A0A0A0",
+                        },
+                        min: startingTrack,
+                        max: endingTrack,
+                    },
+                },
+            },
+        });
+    });
+
+    function filterAlgorithms() {
+        const selectedAlgorithm = document.getElementById("algo-filter").value;
+        const algorithms = document.getElementsByClassName("algorithm");
+
+        for (let i = 0; i < algorithms.length; i++) {
+            if (selectedAlgorithm === "all") {
+                algorithms[i].style.display = "block";
+            } else if (algorithms[i].classList.contains(selectedAlgorithm)) {
+                algorithms[i].style.display = "block";
+            } else {
+                algorithms[i].style.display = "none";
+            }
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Chart initialization code...
+    });
+</script>
+{% endblock %}
